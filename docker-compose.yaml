@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node
+    entrypoint: sh -c 'yarn install --fronzen-lockfile && yarn start:dev'
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - .:/app/
+      - /app/node_modules
+    networks:
+      - node-net
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - ${MONGODB_PORT}:${MONGODB_PORT}
+    volumes:
+      - /mongo-volume:/data/db
+    networks:
+      - node-net
+
+networks:
+  node-net:
+
+volumes:
+  mongo-volume:
