@@ -6,6 +6,7 @@ import { UserResponse } from './interfaces/user-response.interface';
 import { UserInterface } from './interfaces/user.interface';
 import { User } from './schemas/user.schema';
 import { UpdateUserDTO } from './dtos/update-user';
+import { propertyFalse } from '../utils/mongodb/property-false';
 
 @Injectable()
 export class UsersRepository implements IUserRepository {
@@ -19,17 +20,17 @@ export class UsersRepository implements IUserRepository {
   }
 
   public async find(): Promise<UserResponse[]> {
-    return this.userCollection.find({}, { __v: false });
+    return this.userCollection.find({}, propertyFalse);
   }
 
   public async findById(id: string): Promise<UserResponse> {
-    return this.userCollection.findOne({ _id: { $eq: id } }, { __v: false });
+    return this.userCollection.findOne({ _id: { $eq: id } }, propertyFalse);
   }
 
   public async findByEmail(email: string): Promise<UserResponse> {
     return this.userCollection.findOne(
       { email: { $eq: email } },
-      { __v: false },
+      propertyFalse,
     );
   }
 
