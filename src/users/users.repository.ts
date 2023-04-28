@@ -5,7 +5,7 @@ import { IUserRepository } from './interfaces/user-repository.interface';
 import { UserResponse } from './interfaces/user-response.interface';
 import { UserInterface } from './interfaces/user.interface';
 import { User } from './schemas/user.schema';
-import { UpdateUserDTO } from './dtos/update-user';
+import { UpdateUserDTO } from './dtos/update-user.dto';
 import { propertyFalse } from '../utils/mongodb/property-false';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class UsersRepository implements IUserRepository {
     private readonly userCollection: Model<UserInterface>,
   ) {}
   public async add(data: any): Promise<any> {
-    const user = new this.userCollection(data);
+    const user = new this.userCollection(data, propertyFalse);
     return await user.save();
   }
 

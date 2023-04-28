@@ -2,15 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { UserResponse } from './interfaces/user-response.interface';
 import { Response } from 'src/utils/interfaces/response.interface';
-import { UpdateUserDTO } from './dtos/update-user';
-import { IdentifyUserDTO } from './dtos/identify-user';
+import { UpdateUserDTO } from './dtos/update-user.dto';
+import { IdentifyUserDTO } from './dtos/identify-user.dto';
+import { BcryptAdapter } from '../utils/bcrypt/bcrypt-adapter';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepo: UsersRepository) {}
+  constructor(
+    private readonly usersRepo: UsersRepository,
+    private readonly bcryptAdapter: BcryptAdapter,
+  ) {}
 
   public async addUser(data: any): Promise<Response<UserResponse>> {
-    const user = await this.usersRepo.add(data);
+    const dataWithBcryptPassword = {
+      ...data,
+      password: await this.bcryptAdapter.hash(data.password),
+    };
+    const user = await this.usersRepo.add(dataWithBcryptPassword);
     return {
       message: 'User created with successfully',
       data: user,
@@ -24,6 +32,7 @@ export class UsersService {
       name: user.name,
       email: user.email,
       password: user.password,
+      active: user.active,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
@@ -62,8 +71,15 @@ export class UsersService {
     identifyUser: IdentifyUserDTO,
     updateUser: UpdateUserDTO,
   ): Promise<UserResponse> {
-    await this.findUserById(identifyUser);
-    return await this.usersRepo.update(identifyUser.id, updateUser);
+    const useFound = await this.findUserById(identifyUser);
+    const updateUserBcryptPassword = {
+      ...updateUser,
+      password: await this.bcryptAdapter.hash(updateUser.password),
+    };
+    return await this.usersRepo.update(
+      useFound.data._id,
+      updateUserBcryptPassword,
+    );
   }
 
   public async removeUser(

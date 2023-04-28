@@ -1,6 +1,6 @@
 import { UserResponse } from './user-response.interface';
-import { AddUserDTO } from '../dtos/add-user';
-import { UpdateUserDTO } from '../dtos/update-user';
+import { AddUserDTO } from '../dtos/add-user.dto';
+import { UpdateUserDTO } from '../dtos/update-user.dto';
 
 export interface IUserRepository {
   add(data: AddUserDTO): Promise<UserResponse>;
