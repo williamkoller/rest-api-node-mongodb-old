@@ -1,3 +1,5 @@
+[![Code Scanning - Action](https://github.com/williamkoller/rest-api-node-mongodb/actions/workflows/codeql.yml/badge.svg)](https://github.com/williamkoller/rest-api-node-mongodb/actions/workflows/codeql.yml)
+
 # Rest API Node MongoDB
 
 <p align="center">
