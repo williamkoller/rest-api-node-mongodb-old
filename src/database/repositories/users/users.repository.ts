@@ -46,7 +46,7 @@ export class UsersRepository implements IUserRepository {
       {
         _id: { $eq: id },
       },
-      { $eq: { ...updateUser } },
+      { $eq: `/${updateUser}/` },
       { new: true },
     );
   }
