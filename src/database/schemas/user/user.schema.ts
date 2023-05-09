@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 
+export enum UserType {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
+
 @Schema({
   timestamps: true,
   collection: 'users',
@@ -25,7 +30,10 @@ export class User {
   @Prop({ type: Boolean, default: true })
   active: boolean;
 
-  @Prop({ type: Date, text: 'created_at' })
+  @Prop([{ type: String, enum: UserType }])
+  type: UserType[];
+
+  @Prop({ type: Date })
   createdAt: Date;
 
   @Prop({ type: Date })

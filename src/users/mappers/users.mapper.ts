@@ -8,6 +8,7 @@ export class UsersMapper {
       email: user.email,
       password: user.password,
       active: user.active,
+      type: user.type,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

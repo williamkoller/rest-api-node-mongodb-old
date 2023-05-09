@@ -1,4 +1,12 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
+import { UserType } from 'src/database/schemas/user/user.schema';
 
 export class AddUserDTO {
   @IsNotEmpty({ message: 'name cannot be empty' })
@@ -14,4 +22,8 @@ export class AddUserDTO {
   @IsString()
   @Length(8, 20)
   password: string;
+
+  @IsOptional()
+  @IsEnum(UserType, { each: true })
+  type: UserType[];
 }

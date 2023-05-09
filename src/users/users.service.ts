@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
+import { UsersRepository } from '../database/repositories/users/users.repository';
 import { UserResponse } from './interfaces/user-response.interface';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { BcryptAdapter } from '../utils/bcrypt/bcrypt-adapter';
