@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Response } from '../utils/interfaces/response.interface';
 import { JwtAdapter } from '../utils/jwt/jwt-adapter';
 import { AuthInputDTO } from './dtos/create-auth.dto';
 import { AuthResponse } from './interfaces/auth-response.interface';
@@ -13,7 +12,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly bcryptAdapter: BcryptAdapter,
   ) {}
-  public async login(data: AuthInputDTO): Promise<Response<AuthResponse>> {
+  public async login(data: AuthInputDTO): Promise<AuthResponse> {
     const userFound = await this.usersService.findUserByEmail(data.email);
 
     const isValidUser = await this.bcryptAdapter.comparer(
@@ -26,16 +25,13 @@ export class AuthService {
     }
 
     const jwtPayload = {
-      id: userFound._id,
+      _id: userFound._id,
       name: userFound.name,
       active: userFound.active,
     };
+
     const { accessToken } = await this.jwtAdapter.sign(jwtPayload);
-    return {
-      message: 'Login with successfully',
-      data: {
-        accessToken,
-      },
-    };
+
+    return { accessToken };
   }
 }

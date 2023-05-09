@@ -2,7 +2,7 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDTO {
   @IsOptional()
-  @IsString()
+  @IsString({ each: true })
   name?: string;
 
   @IsOptional()
@@ -10,6 +10,6 @@ export class UpdateUserDTO {
   email?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ each: true })
   password?: string;
 }

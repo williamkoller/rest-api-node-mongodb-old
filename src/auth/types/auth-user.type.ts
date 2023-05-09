@@ -1,5 +1,5 @@
-export interface IAuthJwtSign {
+export type AuthUser = {
   _id: string;
   name: string;
   active: boolean;
-}
+};

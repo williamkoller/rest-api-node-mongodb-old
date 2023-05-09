@@ -17,6 +17,6 @@ import { BcryptAdapter } from '../utils/bcrypt/bcrypt-adapter';
   ],
   providers: [UsersService, UsersRepository, BcryptAdapter],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

@@ -5,19 +5,35 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { JwtAdapter } from '../utils/jwt/jwt-adapter';
 import { BcryptAdapter } from '../utils/bcrypt/bcrypt-adapter';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './jwt-strategy';
 
 @Module({
   imports: [
     UsersModule,
-    JwtModule.register({
-      global: true,
-      secret: 'Q1w2e3r4t5y6u7i8o9p0',
-      signOptions: {
-        expiresIn: '3h',
-      },
+    PassportModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        defaultStrategy: configService.get<string>('DEFAULT_STRATEGY'),
+        property: configService.get<string>('PROPERTY'),
+        session: configService.get<boolean>('SESSION'),
+      }),
+    }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        global: true,
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('EXPIRES_IN'),
+        },
+      }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAdapter, BcryptAdapter],
+  providers: [AuthService, JwtAdapter, BcryptAdapter, JwtStrategy],
 })
 export class AuthModule {}

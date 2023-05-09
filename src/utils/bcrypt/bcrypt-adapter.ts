@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { compareSync, hashSync } from 'bcrypt';
 
 @Injectable()
 export class BcryptAdapter {
   public async hash(plaintext: string) {
-    return hashSync(plaintext, genSaltSync());
+    const salt = 12;
+    return hashSync(plaintext, salt);
   }
 
   public async comparer(plaintext: string, digest: string) {

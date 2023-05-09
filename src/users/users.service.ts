@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { UserResponse } from './interfaces/user-response.interface';
-import { Response } from 'src/utils/interfaces/response.interface';
 import { UpdateUserDTO } from './dtos/update-user.dto';
-import { IdentifyUserDTO } from './dtos/identify-user.dto';
 import { BcryptAdapter } from '../utils/bcrypt/bcrypt-adapter';
+import { UsersMapper } from './mappers/users.mapper';
+import { AddUserDTO } from './dtos/add-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,48 +17,41 @@ export class UsersService {
     private readonly bcryptAdapter: BcryptAdapter,
   ) {}
 
-  public async addUser(data: any): Promise<Response<UserResponse>> {
+  public async addUser(data: AddUserDTO): Promise<UserResponse> {
     const dataWithBcryptPassword = {
       ...data,
       password: await this.bcryptAdapter.hash(data.password),
     };
-    const user = await this.usersRepo.add(dataWithBcryptPassword);
-    return {
-      message: 'User created with successfully',
-      data: user,
-    };
-  }
 
-  public async findUsers(): Promise<Response<UserResponse[]>> {
-    const users = await this.usersRepo.find();
-    const usersMap = users.map((user) => ({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      password: user.password,
-      active: user.active,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    }));
-    return {
-      message: 'Fetched users with successfully',
-      data: usersMap,
-    };
-  }
+    const userExists = await this.usersRepo.findByEmail(data.email);
 
-  public async findUserById(
-    identifyUser: IdentifyUserDTO,
-  ): Promise<Response<UserResponse>> {
-    const user = await this.usersRepo.findById(identifyUser.id);
-
-    if (!user) {
-      throw new NotFoundException(`User id: ${identifyUser.id} not found.`);
+    if (userExists) {
+      throw new ConflictException();
     }
 
-    return {
-      message: 'Fetched user with successfully',
-      data: user,
-    };
+    const user = await this.usersRepo.add(dataWithBcryptPassword);
+
+    return UsersMapper.toUser(user);
+  }
+
+  public async findUsers(): Promise<UserResponse[]> {
+    const users = await this.usersRepo.find();
+
+    if (!users.length) {
+      throw new NotFoundException('No record found');
+    }
+
+    return UsersMapper.toUsers(users);
+  }
+
+  public async findUserById(id: string): Promise<UserResponse> {
+    const user = await this.usersRepo.findById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User id: ${id} not found.`);
+    }
+
+    return UsersMapper.toUser(user);
   }
 
   public async findUserByEmail(email: string): Promise<UserResponse> {
@@ -68,27 +65,29 @@ export class UsersService {
   }
 
   public async updateUser(
-    identifyUser: IdentifyUserDTO,
+    id: string,
     updateUser: UpdateUserDTO,
   ): Promise<UserResponse> {
-    const useFound = await this.findUserById(identifyUser);
-    const updateUserBcryptPassword = {
+    const userFound = await this.findUserById(id);
+    let updateUserBcryptPassword = {
       ...updateUser,
-      password: await this.bcryptAdapter.hash(updateUser.password),
     };
-    return await this.usersRepo.update(
-      useFound.data._id,
-      updateUserBcryptPassword,
-    );
+
+    if (updateUser.password) {
+      updateUserBcryptPassword = {
+        password: await this.bcryptAdapter.hash(updateUser.password),
+      };
+    }
+
+    return await this.usersRepo.update(userFound._id, updateUserBcryptPassword);
   }
 
-  public async removeUser(
-    identifyUser: IdentifyUserDTO,
-  ): Promise<Response<UserResponse>> {
-    const userFound = await this.findUserById(identifyUser);
-    await this.usersRepo.remove(userFound.data._id);
-    return {
-      message: 'User removed with successfully',
-    };
+  public async removeUser(id: string): Promise<void> {
+    const userFound = await this.findUserById(id);
+    await this.usersRepo.remove(userFound._id);
+  }
+
+  public async findUserLoggedById(id: string): Promise<UserResponse> {
+    return await this.findUserById(id);
   }
 }

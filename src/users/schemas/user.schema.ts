@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 @Schema({
   timestamps: true,
   collection: 'users',
-  _id: false,
+  _id: true,
 })
 export class User {
   @Prop({
@@ -16,7 +16,7 @@ export class User {
   @Prop({ type: String, required: true, default: null })
   name: string;
 
-  @Prop({ type: String, required: true, default: null })
+  @Prop({ type: String, required: true, default: null, unique: true })
   email: string;
 
   @Prop({ type: String, required: true, default: null })
